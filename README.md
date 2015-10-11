@@ -4,4 +4,4 @@ https://en.wikipedia.org/wiki/Simulated_annealing
 
 The software has no error handling of any kind and is done as a proof of concept. Thus any malformed input will break it.
 
-Useful further development would include correctly placing couples according to social norms, i.e. ensuring the lady on the right side of a gentleman or the married couples seated opposite to each other. Also useful would be to have a grapical user interface.
+Useful further development would include correctly placing couples according to social norms, i.e. ensuring the lady on the right side of a gentleman or the married couples seated opposite to each other. Also useful would be to have a graphical user interface.
