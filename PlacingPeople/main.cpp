@@ -1,4 +1,4 @@
-//Copyright(c) 11th Oct 2015 Joose Rajam‰ki
+//Copyright(c) 11th Oct 2015 Joose Rajam√§ki
 //
 //Permission is hereby granted, free of charge, to any person obtaining
 //a copy of this software and associated documentation files(the
@@ -128,19 +128,26 @@ public:
 			}
 			else{ //Table with multiple people
 
-				for (int row = 0; row < table.places.size() - 1; row++){
+				for (int row = 0; row < table.places.size(); row++){
 					for (int i = 0; i < table.places[0].size() - 1; i++){
 						std::string person1 = table.get(i, row);
 						std::string person2 = table.get(i + 1, row);
-						std::string personOpposite = table.get(i, row + 1);
+						std::string personOpposite;
+						if (row == 0){
+							personOpposite = table.get(i, row + 1);
+						}
 						energy -= getAffinity(person1, person2);
-						energy -= getAffinity(person1, personOpposite);
+						if (row == 0){
+							energy -= getAffinity(person1, personOpposite);
+						}
 					}
 
 					//End of the table
-					std::string person = table.get(table.places[0].size() - 1, row);
-					std::string personOpposite = table.get(table.places[0].size() - 1, row + 1);
-					energy -= getAffinity(person, personOpposite);
+					if (row == 0){
+						std::string person = table.get(table.places[0].size() - 1, row);
+						std::string personOpposite = table.get(table.places[0].size() - 1, row + 1);
+						energy -= getAffinity(person, personOpposite);
+					}
 
 				}
 
@@ -181,7 +188,7 @@ public:
 			if (right < tables[table1].places[0].size()){
 				neighbors1.push_back(tables[table1].get(right, row1));
 			}
-			neighbors1.push_back(tables[table1].get(seat1,(row1+1)%2)); //The person opposite
+			neighbors1.push_back(tables[table1].get(seat1, (row1 + 1) % 2)); //The person opposite
 
 		}
 
@@ -212,6 +219,8 @@ public:
 
 		}
 
+		bool switchPlaces = false;
+
 		for (auto& person : neighbors1){
 			energyFreed += -getAffinity(person, person1ToMove);
 		}
@@ -221,11 +230,21 @@ public:
 		}
 
 		for (auto& person : neighbors1){
+			if (person.compare(person2ToMove) == 0){
+				switchPlaces = true;
+			}
 			energyStored += -getAffinity(person, person2ToMove);
 		}
 
 		for (auto& person : neighbors2){
+			if (person.compare(person1ToMove) == 0){
+				switchPlaces = true;
+			}
 			energyStored += -getAffinity(person, person1ToMove);
+		}
+
+		if (switchPlaces){
+			energyStored += -2.0*getAffinity(person2ToMove, person1ToMove);
 		}
 
 		return energyStored - energyFreed;
@@ -316,7 +335,7 @@ public:
 						break;
 					}
 				}
-				
+
 			}
 		}
 
@@ -450,7 +469,7 @@ public:
 			if (seatsInParty < people.size()){
 				std::cout << "Not enough places for everyone. Add tables." << std::endl;
 			}
-			
+
 			std::cout << "Add round table with 'r', add straight table with 's' or quit with 'q'." << std::endl;
 			std::cin >> readValue;
 
@@ -508,11 +527,12 @@ public:
 
 			tables[table1].set(person2, seat1, row1);
 			tables[table2].set(person1, seat2, row2);
+			energy += energyChange;
 		}
 
 	}
 
-	void timeStep(const double& temperature,const unsigned& numberOfSeatsInTheParty = 0){
+	void timeStep(const double& temperature, const unsigned& numberOfSeatsInTheParty = 0){
 
 		unsigned seatsInParty = 0;
 
@@ -542,6 +562,7 @@ public:
 
 		double temperature = 5000;
 		double annealing = 0.99;
+		computeEnergy();
 
 		double treshold = 1e-10;
 		while (temperature > treshold){
@@ -550,6 +571,9 @@ public:
 
 			temperature *= annealing;
 
+			double debugEnergy = energy;
+			computeEnergy();
+			energy = debugEnergy;
 
 			std::cout << "Ready when this is zero: " << temperature << std::endl;
 
